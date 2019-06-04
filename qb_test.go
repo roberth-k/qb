@@ -16,7 +16,7 @@ func TestQuery(t *testing.T) {
 		{
 			name: "simple select",
 			expr: `SELECT * FROM my_table`,
-			args: []interface{}{},
+			args: nil,
 			query: func() qb.Query {
 				return qb.
 					Select("*").
@@ -31,7 +31,7 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Select("*").
 					From("my_table").
-					Where(qb.Predicate{}.
+					Where(qb.
 						AndS("x = 1").
 						AndS("y = ?", 2))
 			},
@@ -44,16 +44,16 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Select("*").
 					From("my_table").
-					Where(qb.Predicate{}.
+					Where(qb.
 						AndS("x = ?", 1).
-						AndP(qb.Predicate{}.
+						AndP(qb.
 							AndS("y = ?", 2).
 							OrS("z = ?", 3)))
 			},
 		},
 		{
 			name: "simple insert with arguments",
-			expr: `INSERT INTO my_table VALUES ?, ?, ?`,
+			expr: `INSERT INTO my_table ( a, b, c ) VALUES ( ?, ?, ? )`,
 			args: []interface{}{"a", "b", "c"},
 			query: func() qb.Query {
 				return qb.
@@ -63,16 +63,16 @@ func TestQuery(t *testing.T) {
 		},
 		{
 			name: "with statement",
-			expr: `WITH stmt1 AS ( INSERT INTO my_table VALUES ?, ?, ? ) SELECT a AS "foo.bar" FROM my_table WHERE a = ?`,
+			expr: `WITH stmt1 AS ( INSERT INTO my_table ( a, b, c ) VALUES ( ?, ?, ? ) ) SELECT a AS "foo.bar" FROM my_table WHERE a = ?`,
 			args: []interface{}{1, 2, 3, 1},
 			query: func() qb.Query {
 				return qb.
-					With("stmt1", qb.Query{}.
+					With("stmt1", qb.
 						InsertInto("my_table", "a", "b", "c").
 						Values(1, 2, 3)).
 					Select(`a AS "foo.bar"`).
 					From("my_table").
-					Where(qb.Predicate{}.
+					Where(qb.
 						AndS("a = ?", 1))
 			},
 		},
