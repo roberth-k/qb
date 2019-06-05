@@ -37,6 +37,20 @@ func TestQuery(t *testing.T) {
 			},
 		},
 		{
+			name: "simple select with compound predicate and pq dialect",
+			expr: `SELECT * FROM my_table WHERE x = $1 AND y = $2`,
+			args: []interface{}{1, 2},
+			query: func() qb.Query {
+				return qb.
+					DialectOption(qb.DialectPq).
+					Select("*").
+					From("my_table").
+					Where(qb.
+						AndS("x = ?", 1).
+						AndS("y = ?", 2))
+			},
+		},
+		{
 			name: "simple select with nested predicate",
 			expr: `SELECT * FROM my_table WHERE x = ? AND ( y = ? OR z = ? )`,
 			args: []interface{}{1, 2, 3},

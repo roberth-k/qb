@@ -5,6 +5,7 @@ import "strings"
 type Query struct {
 	sql  []string
 	args []interface{}
+	Dialect
 }
 
 func (q Query) String() string {
@@ -17,6 +18,15 @@ func (q Query) SQL() string {
 
 func (q Query) Args() []interface{} {
 	return q.args
+}
+
+func DialectOption(d Dialect) Query {
+	return Query{Dialect: d}
+}
+
+func (q Query) DialectOption(d Dialect) Query {
+	q.Dialect = d
+	return q
 }
 
 func With(name string, query Query) Query {
