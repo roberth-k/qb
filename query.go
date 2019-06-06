@@ -105,3 +105,9 @@ func (q Query) Where(pred Predicate) Query {
 	q.args = append(q.args, pred.args...)
 	return q
 }
+
+func (q Query) Returning(first string, rest ...string) Query {
+	q.sql = append(q.sql, "RETURNING", first)
+	q.sql = append(q.sql, rest...)
+	return q
+}
