@@ -1,7 +1,7 @@
 qb
 ===
 
-qb is a SQL query builder for Golang. It will never have flashy features.
+qb is a simple SQL query builder for Golang.
 
 - `go get github.com/tetratom/qb`
 - [GoDoc](https://godoc.org/github.com/tetratom/qb)
