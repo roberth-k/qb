@@ -52,11 +52,11 @@ func TestQuery(t *testing.T) {
 		},
 		{
 			name: "simple select with nested predicate",
-			expr: `SELECT * FROM my_table WHERE x = ? AND ( y = ? OR z = ? )`,
+			expr: `SELECT a , b FROM my_table WHERE x = ? AND ( y = ? OR z = ? )`,
 			args: []interface{}{1, 2, 3},
 			query: func() qb.Query {
 				return qb.
-					Select("*").
+					Select("a", "b").
 					From("my_table").
 					Where(qb.
 						AndS("x = ?", 1).
@@ -67,7 +67,7 @@ func TestQuery(t *testing.T) {
 		},
 		{
 			name: "simple insert with arguments",
-			expr: `INSERT INTO my_table ( a, b, c ) VALUES ( ?, ?, ? )`,
+			expr: `INSERT INTO my_table ( a , b , c ) VALUES ( ? , ? , ? )`,
 			args: []interface{}{"a", "b", "c"},
 			query: func() qb.Query {
 				return qb.
@@ -77,7 +77,7 @@ func TestQuery(t *testing.T) {
 		},
 		{
 			name: "with statement",
-			expr: `WITH stmt1 AS ( INSERT INTO my_table ( a, b, c ) VALUES ( ?, ?, ? ) ) SELECT a AS "foo.bar" FROM my_table WHERE a = ?`,
+			expr: `WITH stmt1 AS ( INSERT INTO my_table ( a , b , c ) VALUES ( ? , ? , ? ) ) SELECT a AS "foo.bar" FROM my_table WHERE a = ?`,
 			args: []interface{}{1, 2, 3, 1},
 			query: func() qb.Query {
 				return qb.

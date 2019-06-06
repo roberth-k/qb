@@ -41,12 +41,15 @@ func (q Query) With(name string, query Query) Query {
 	return q
 }
 
-func Select(expr string) Query {
-	return Query{}.Select(expr)
+func Select(first string, rest ...string) Query {
+	return Query{}.Select(first, rest...)
 }
 
-func (q Query) Select(expr string) Query {
-	q.sql = append(q.sql, "SELECT", expr)
+func (q Query) Select(first string, rest ...string) Query {
+	q.sql = append(q.sql, "SELECT", first)
+	for _, column := range rest {
+		q.sql = append(q.sql, ",", column)
+	}
 	return q
 }
 
@@ -63,23 +66,20 @@ func (q Query) InsertInto(expr string, columns ...string) Query {
 	q.sql = append(q.sql, "INSERT INTO", expr)
 
 	if len(columns) > 0 {
-		q.sql = append(q.sql, "(", strings.Join(columns, ", "), ")")
+		for i, column := range columns {
+			var start string
+			if i == 0 {
+				start = "("
+			} else {
+				start = ","
+			}
+
+			q.sql = append(q.sql, start, column)
+		}
+		q.sql = append(q.sql, ")")
 	}
 
 	return q
-}
-
-func placeholders(n int) string {
-	qm, sep := "?", ", "
-	b := strings.Builder{}
-	b.Grow(n*len(qm) + (n-1)*len(sep))
-	for i := 0; i < n; i++ {
-		if i > 0 {
-			b.WriteString(sep)
-		}
-		b.WriteString(qm)
-	}
-	return b.String()
 }
 
 func (q Query) Values(values ...interface{}) Query {
@@ -88,11 +88,20 @@ func (q Query) Values(values ...interface{}) Query {
 
 func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 	q.sql = append(q.sql, "VALUES")
-	q.sql = append(q.sql, "(", placeholders(len(first)), ")")
-	q.args = append(q.args, first...)
 
-	for _, tuple := range rest {
-		q.sql = append(q.sql, "(", placeholders(len(tuple)), ")")
+	all := append([][]interface{}{first}, rest...)
+
+	for _, tuple := range all {
+		// TODO: Yes, this is horribly inefficient.
+		// TODO: At minimum, q.sql should be pre-grown.
+		q.sql = append(q.sql, "(")
+		for i := range tuple {
+			if i > 0 {
+				q.sql = append(q.sql, ",")
+			}
+			q.sql = append(q.sql, "?")
+		}
+		q.sql = append(q.sql, ")")
 		q.args = append(q.args, tuple...)
 	}
 
@@ -108,6 +117,8 @@ func (q Query) Where(pred Predicate) Query {
 
 func (q Query) Returning(first string, rest ...string) Query {
 	q.sql = append(q.sql, "RETURNING", first)
-	q.sql = append(q.sql, rest...)
+	for _, column := range rest {
+		q.sql = append(q.sql, ",", column)
+	}
 	return q
 }
