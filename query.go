@@ -122,3 +122,11 @@ func (q Query) Returning(first string, rest ...string) Query {
 	}
 	return q
 }
+
+func (q Query) OrderBy(first string, rest ...string) Query {
+	q.sql = append(q.sql, "ORDER BY", first)
+	for _, column := range rest {
+		q.sql = append(q.sql, ",", column)
+	}
+	return q
+}

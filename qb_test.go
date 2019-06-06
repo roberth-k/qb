@@ -90,6 +90,28 @@ func TestQuery(t *testing.T) {
 						AndS("a = ?", 1))
 			},
 		},
+		{
+			name: "returning",
+			expr: `INSERT INTO my_table ( a ) VALUES ( ? ) RETURNING a`,
+			args: []interface{}{1},
+			query: func() qb.Query {
+				return qb.
+					InsertInto("my_table", "a").
+					Values(1).
+					Returning("a")
+			},
+		},
+		{
+			name: "order by",
+			expr: `SELECT * FROM my_table ORDER BY a ASC , b DESC`,
+			args: nil,
+			query: func() qb.Query {
+				return qb.
+					Select("*").
+					From("my_table").
+					OrderBy("a ASC", "b DESC")
+			},
+		},
 	}
 
 	for _, test := range tests {
