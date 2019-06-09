@@ -157,3 +157,9 @@ func (q Query) OrderBy(first string, rest ...string) Query {
 	}
 	return q
 }
+
+func (q Query) Append(expr string, args ...interface{}) Query {
+	q.sql = append(q.sql, expr)
+	q.args = append(q.args, args...)
+	return q
+}
