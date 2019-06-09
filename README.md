@@ -1,6 +1,10 @@
 qb
 ===
 
+[![GoDoc](https://godoc.org/github.com/tetratom/qb?status.svg)](https://godoc.org/github.com/tetratom/qb)
+[![CircleCI](https://circleci.com/gh/tetratom/qb.svg?style=svg)](https://circleci.com/gh/tetratom/qb)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tetratom/qb)](https://goreportcard.com/report/github.com/tetratom/qb)
+
 qb is a simple SQL query builder for Golang.
 
 - `go get github.com/tetratom/qb`
