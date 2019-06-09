@@ -15,3 +15,9 @@ jobs:
           key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
           paths:
             - "/go/pkg/mod"
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - test
