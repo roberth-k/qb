@@ -10,6 +10,8 @@ qb is a simple SQL query builder for Golang.
 - `go get github.com/tetratom/qb`
 - [GoDoc](https://godoc.org/github.com/tetratom/qb)
 - More examples can be found in [qb_test.go](./qb_test.go).
+- All methods take value receivers and return values.
+- Select the placeholder dialect with the `DialectOption(Dialect)` method.
 - Example:
 
 ```go

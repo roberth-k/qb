@@ -1,6 +1,11 @@
 package qb
 
-import "strings"
+import (
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+)
 
 type Query struct {
 	sql  []string
@@ -12,8 +17,30 @@ func (q Query) String() string {
 	return q.SQL()
 }
 
+// TODO: Support escapes.
+var placeholderPattern = regexp.MustCompile(`\?`)
+
 func (q Query) SQL() string {
-	return strings.Join(q.sql, " ")
+	sql := strings.Join(q.sql, " ")
+
+	var prefix string
+	switch q.Dialect {
+	case DialectDefault:
+		return sql
+	case DialectPq:
+		prefix = "$"
+	case DialectGoracle:
+		prefix = ":"
+	default:
+		panic(fmt.Errorf("unrecognised dialect %d", q.Dialect))
+	}
+
+	i := 0
+	return placeholderPattern.ReplaceAllStringFunc(
+		sql, func(match string) string {
+			i += 1
+			return prefix + strconv.Itoa(i)
+		})
 }
 
 func (q Query) Args() []interface{} {

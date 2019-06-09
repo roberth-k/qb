@@ -1,8 +1,9 @@
 package qb
 
-type Dialect string
+type Dialect int
 
 const (
-	DialectDefault Dialect = ""
-	DialectPq      Dialect = "pq"
+	DialectDefault Dialect = iota
+	DialectPq
+	DialectGoracle
 )
