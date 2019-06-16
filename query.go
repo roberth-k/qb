@@ -195,3 +195,8 @@ func (q Query) Set(first Assignment, rest ...Assignment) Query {
 	}
 	return q
 }
+
+func (q Query) DefaultValues() Query {
+	q.sql = append(q.sql, "DEFAULT", "VALUES")
+	return q
+}
