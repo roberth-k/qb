@@ -163,3 +163,31 @@ func (q Query) Append(expr string, args ...interface{}) Query {
 	q.args = append(q.args, args...)
 	return q
 }
+
+func Update(table string) Query {
+	return Query{}.Update(table)
+}
+
+func (q Query) Update(table string) Query {
+	q.sql = append(q.sql, "UPDATE", table)
+	return q
+}
+
+type Assignment struct {
+	expr string
+	args []interface{}
+}
+
+func Assign(field string, args ...interface{}) Assignment {
+	return Assignment{field, args}
+}
+
+func (q Query) Set(first Assignment, rest ...Assignment) Query {
+	q.sql = append(q.sql, "SET", first.expr)
+	q.args = append(q.args, first.args...)
+	for _, assign := range rest {
+		q.sql = append(q.sql, ",", assign.expr)
+		q.args = append(q.args, assign.args...)
+	}
+	return q
+}

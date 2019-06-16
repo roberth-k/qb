@@ -112,6 +112,17 @@ func TestQuery(t *testing.T) {
 					OrderBy("a ASC", "b DESC")
 			},
 		},
+		{
+			name: "update table",
+			expr: `UPDATE my_table SET foo = 1 , bar = ? WHERE a = ?`,
+			args: []interface{}{"a", 2},
+			query: func() qb.Query {
+				return qb.
+					Update("my_table").
+					Set(qb.Assign("foo = 1"), qb.Assign("bar = ?", "a")).
+					Where(qb.AndS("a = ?", 2))
+			},
+		},
 	}
 
 	for _, test := range tests {
