@@ -142,6 +142,10 @@ func (q Query) Where(pred Predicate) Query {
 	return q
 }
 
+func (q Query) WhereS(expr string, args ...interface{}) Query {
+	return q.Where(AndS(expr, args...))
+}
+
 func (q Query) Returning(first string, rest ...string) Query {
 	q.sql = append(q.sql, "RETURNING", first)
 	for _, column := range rest {
