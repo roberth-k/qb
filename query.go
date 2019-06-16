@@ -7,9 +7,27 @@ import (
 	"strings"
 )
 
+type expressionType int
+
+const (
+	anyExpr expressionType = iota
+	defaultValuesExpr
+	fromExpr
+	insertIntoExpr
+	orderByExpr
+	returningExpr
+	selectExpr
+	setExpr
+	updateExpr
+	valuesExpr
+	whereExpr
+	withExpr
+)
+
 type Query struct {
 	sql  []string
 	args []interface{}
+	last expressionType
 	Dialect
 }
 
@@ -61,7 +79,13 @@ func With(name string, query Query) Query {
 }
 
 func (q Query) With(name string, query Query) Query {
-	q.sql = append(q.sql, "WITH", name, "AS", "(")
+	prefix := "WITH"
+	if q.last == withExpr {
+		prefix = ","
+	}
+
+	q.last = withExpr
+	q.sql = append(q.sql, prefix, name, "AS", "(")
 	q.sql = append(q.sql, query.sql...)
 	q.sql = append(q.sql, ")")
 	q.args = append(q.args, query.args...)
@@ -73,6 +97,7 @@ func Select(first string, rest ...string) Query {
 }
 
 func (q Query) Select(first string, rest ...string) Query {
+	q.last = selectExpr
 	q.sql = append(q.sql, "SELECT", first)
 	for _, column := range rest {
 		q.sql = append(q.sql, ",", column)
@@ -81,6 +106,7 @@ func (q Query) Select(first string, rest ...string) Query {
 }
 
 func (q Query) From(expr string) Query {
+	q.last = fromExpr
 	q.sql = append(q.sql, "FROM", expr)
 	return q
 }
@@ -90,6 +116,7 @@ func InsertInto(expr string, columns ...string) Query {
 }
 
 func (q Query) InsertInto(expr string, columns ...string) Query {
+	q.last = insertIntoExpr
 	q.sql = append(q.sql, "INSERT INTO", expr)
 
 	if len(columns) > 0 {
@@ -114,6 +141,7 @@ func (q Query) Values(values ...interface{}) Query {
 }
 
 func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
+	q.last = valuesExpr
 	q.sql = append(q.sql, "VALUES")
 
 	all := append([][]interface{}{first}, rest...)
@@ -136,6 +164,7 @@ func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 }
 
 func (q Query) Where(pred Predicate) Query {
+	q.last = whereExpr
 	q.sql = append(q.sql, "WHERE")
 	q.sql = append(q.sql, pred.sql...)
 	q.args = append(q.args, pred.args...)
@@ -147,6 +176,7 @@ func (q Query) WhereS(expr string, args ...interface{}) Query {
 }
 
 func (q Query) Returning(first string, rest ...string) Query {
+	q.last = returningExpr
 	q.sql = append(q.sql, "RETURNING", first)
 	for _, column := range rest {
 		q.sql = append(q.sql, ",", column)
@@ -155,6 +185,7 @@ func (q Query) Returning(first string, rest ...string) Query {
 }
 
 func (q Query) OrderBy(first string, rest ...string) Query {
+	q.last = orderByExpr
 	q.sql = append(q.sql, "ORDER BY", first)
 	for _, column := range rest {
 		q.sql = append(q.sql, ",", column)
@@ -173,30 +204,25 @@ func Update(table string) Query {
 }
 
 func (q Query) Update(table string) Query {
+	q.last = updateExpr
 	q.sql = append(q.sql, "UPDATE", table)
 	return q
 }
 
-type Assignment struct {
-	expr string
-	args []interface{}
-}
-
-func Assign(field string, args ...interface{}) Assignment {
-	return Assignment{field, args}
-}
-
-func (q Query) Set(first Assignment, rest ...Assignment) Query {
-	q.sql = append(q.sql, "SET", first.expr)
-	q.args = append(q.args, first.args...)
-	for _, assign := range rest {
-		q.sql = append(q.sql, ",", assign.expr)
-		q.args = append(q.args, assign.args...)
+func (q Query) Set(expr string, args ...interface{}) Query {
+	prefix := "SET"
+	if q.last == setExpr {
+		prefix = ","
 	}
+
+	q.last = setExpr
+	q.sql = append(q.sql, prefix, expr)
+	q.args = append(q.args, args...)
 	return q
 }
 
 func (q Query) DefaultValues() Query {
+	q.last = defaultValuesExpr
 	q.sql = append(q.sql, "DEFAULT", "VALUES")
 	return q
 }

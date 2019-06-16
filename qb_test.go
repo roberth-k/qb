@@ -91,6 +91,22 @@ func TestQuery(t *testing.T) {
 			},
 		},
 		{
+			name: "multiple with statements",
+			expr: `WITH stmt1 AS ( INSERT INTO my_table DEFAULT VALUES ) , stmt2 AS ( INSERT INTO other_table DEFAULT VALUES ) SELECT * FROM my_table`,
+			args: nil,
+			query: func() qb.Query {
+				return qb.
+					With("stmt1", qb.
+						InsertInto("my_table").
+						DefaultValues()).
+					With("stmt2", qb.
+						InsertInto("other_table").
+						DefaultValues()).
+					Select("*").
+					From("my_table")
+			},
+		},
+		{
 			name: "returning",
 			expr: `INSERT INTO my_table ( a ) VALUES ( ? ) RETURNING a`,
 			args: []interface{}{1},
@@ -119,7 +135,7 @@ func TestQuery(t *testing.T) {
 			query: func() qb.Query {
 				return qb.
 					Update("my_table").
-					Set(qb.Assign("foo = 1"), qb.Assign("bar = ?", "a")).
+					Set("foo = 1").Set("bar = ?", "a").
 					WhereS("a = ?", 2)
 			},
 		},
