@@ -12,11 +12,15 @@ func (p Predicate) String() string {
 	return strings.Join(p.sql, " ")
 }
 
-func AndS(expr string, args ...interface{}) Predicate {
-	return Predicate{}.AndS(expr, args...)
+func Pred(expr string, args ...interface{}) Predicate {
+	return Predicate{}.And(expr, args...)
 }
 
-func (my Predicate) AndS(expr string, args ...interface{}) Predicate {
+func And(expr string, args ...interface{}) Predicate {
+	return Pred(expr, args...)
+}
+
+func (my Predicate) And(expr string, args ...interface{}) Predicate {
 	if my.count > 0 {
 		my.sql = append(my.sql, "AND")
 	}
@@ -44,7 +48,7 @@ func (my Predicate) AndP(predicate Predicate) Predicate {
 	return my
 }
 
-func (my Predicate) OrS(expr string, args ...interface{}) Predicate {
+func (my Predicate) Or(expr string, args ...interface{}) Predicate {
 	if my.count > 0 {
 		my.sql = append(my.sql, "OR")
 	}

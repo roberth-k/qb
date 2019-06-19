@@ -163,7 +163,7 @@ func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 	return q
 }
 
-func (q Query) Where(pred Predicate) Query {
+func (q Query) WhereP(pred Predicate) Query {
 	q.last = whereExpr
 	q.sql = append(q.sql, "WHERE")
 	q.sql = append(q.sql, pred.sql...)
@@ -171,8 +171,8 @@ func (q Query) Where(pred Predicate) Query {
 	return q
 }
 
-func (q Query) WhereS(expr string, args ...interface{}) Query {
-	return q.Where(AndS(expr, args...))
+func (q Query) Where(expr string, args ...interface{}) Query {
+	return q.WhereP(And(expr, args...))
 }
 
 func (q Query) Returning(first string, rest ...string) Query {

@@ -31,9 +31,9 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Select("*").
 					From("my_table").
-					Where(qb.
-						AndS("x = 1").
-						AndS("y = ?", 2))
+					WhereP(qb.
+						And("x = 1").
+						And("y = ?", 2))
 			},
 		},
 		{
@@ -45,9 +45,9 @@ func TestQuery(t *testing.T) {
 					DialectOption(qb.DialectPq).
 					Select("*").
 					From("my_table").
-					Where(qb.
-						AndS("x = ?", 1).
-						AndS("y = ?", 2))
+					WhereP(qb.
+						And("x = ?", 1).
+						And("y = ?", 2))
 			},
 		},
 		{
@@ -58,11 +58,11 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Select("a", "b").
 					From("my_table").
-					Where(qb.
-						AndS("x = ?", 1).
+					WhereP(qb.
+						And("x = ?", 1).
 						AndP(qb.
-							AndS("y = ?", 2).
-							OrS("z = ?", 3)))
+							And("y = ?", 2).
+							Or("z = ?", 3)))
 			},
 		},
 		{
@@ -86,8 +86,8 @@ func TestQuery(t *testing.T) {
 						Values(1, 2, 3)).
 					Select(`a AS "foo.bar"`).
 					From("my_table").
-					Where(qb.
-						AndS("a = ?", 1))
+					WhereP(qb.
+						And("a = ?", 1))
 			},
 		},
 		{
@@ -129,14 +129,14 @@ func TestQuery(t *testing.T) {
 			},
 		},
 		{
-			name: "update table and WhereS",
+			name: "update table and where",
 			expr: `UPDATE my_table SET foo = 1 , bar = ? WHERE a = ?`,
 			args: []interface{}{"a", 2},
 			query: func() qb.Query {
 				return qb.
 					Update("my_table").
 					Set("foo = 1").Set("bar = ?", "a").
-					WhereS("a = ?", 2)
+					Where("a = ?", 2)
 			},
 		},
 	}
