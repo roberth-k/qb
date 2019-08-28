@@ -22,12 +22,14 @@ const (
 	valuesExpr
 	whereExpr
 	withExpr
+	deleteFromExpr
 )
 
 type Query struct {
 	sql  []string
 	args []interface{}
 	last expressionType
+	str  string
 	Dialect
 }
 
@@ -38,7 +40,11 @@ func (q Query) String() string {
 // TODO: Support escapes.
 var placeholderPattern = regexp.MustCompile(`\?`)
 
-func (q Query) SQL() string {
+func (q *Query) SQL() string {
+	if q.str != "" {
+		return q.str
+	}
+
 	sql := strings.Join(q.sql, " ")
 
 	var prefix string
@@ -54,15 +60,19 @@ func (q Query) SQL() string {
 	}
 
 	i := 0
-	return placeholderPattern.ReplaceAllStringFunc(
+	q.str = placeholderPattern.ReplaceAllStringFunc(
 		sql, func(match string) string {
 			i += 1
 			return prefix + strconv.Itoa(i)
 		})
+
+	return q.str
 }
 
-func (q Query) Args() []interface{} {
-	return q.args
+func (q *Query) Args() []interface{} {
+	args := make([]interface{}, len(q.args))
+	copy(args, q.args)
+	return args
 }
 
 func DialectOption(d Dialect) Query {
@@ -133,6 +143,16 @@ func (q Query) InsertInto(expr string, columns ...string) Query {
 		q.sql = append(q.sql, ")")
 	}
 
+	return q
+}
+
+func DeleteFrom(table string) Query {
+	return Query{}.DeleteFrom(table)
+}
+
+func (q Query) DeleteFrom(table string) Query {
+	q.last = deleteFromExpr
+	q.sql = append(q.sql, "DELETE FROM", table)
 	return q
 }
 
