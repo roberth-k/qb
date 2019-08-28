@@ -16,7 +16,7 @@ func TestQuery(t *testing.T) {
 		{
 			name: "simple select",
 			expr: `SELECT * FROM my_table`,
-			args: nil,
+			args: []interface{}{},
 			query: func() qb.Query {
 				return qb.
 					Select("*").
@@ -93,7 +93,7 @@ func TestQuery(t *testing.T) {
 		{
 			name: "multiple with statements",
 			expr: `WITH stmt1 AS ( INSERT INTO my_table DEFAULT VALUES ) , stmt2 AS ( INSERT INTO other_table DEFAULT VALUES ) SELECT * FROM my_table`,
-			args: nil,
+			args: []interface{}{},
 			query: func() qb.Query {
 				return qb.
 					With("stmt1", qb.
@@ -120,7 +120,7 @@ func TestQuery(t *testing.T) {
 		{
 			name: "order by",
 			expr: `SELECT * FROM my_table ORDER BY a ASC , b DESC`,
-			args: nil,
+			args: []interface{}{},
 			query: func() qb.Query {
 				return qb.
 					Select("*").
