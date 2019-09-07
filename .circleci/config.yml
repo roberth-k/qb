@@ -1,9 +1,24 @@
 version: 2.1
 
 jobs:
-  test:
+  test_go112:
     docker:
       - image: circleci/golang:1.12.9
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+      - run: go test ./...
+      - save_cache:
+          key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+          paths:
+            - "/go/pkg/mod"
+
+  test_go113:
+    docker:
+      - image: circleci/golang:1.13
 
     steps:
       - checkout
@@ -20,4 +35,5 @@ workflows:
   version: 2
   default:
     jobs:
-      - test
+      - test_go112
+      - test_go113
