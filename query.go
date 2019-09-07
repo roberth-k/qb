@@ -23,6 +23,7 @@ const (
 	whereExpr
 	withExpr
 	deleteFromExpr
+	combiningQuery
 )
 
 type Query struct {
@@ -213,10 +214,15 @@ func (q Query) OrderBy(first string, rest ...string) Query {
 	return q
 }
 
-func (q Query) Append(expr string, args ...interface{}) Query {
+func (q Query) appending(t expressionType, expr string, args ...interface{}) Query {
+	q.last = t
 	q.sql = append(q.sql, expr)
 	q.args = append(q.args, args...)
 	return q
+}
+
+func (q Query) Append(expr string, args ...interface{}) Query {
+	return q.appending(q.last, expr, args...)
 }
 
 func Update(table string) Query {
@@ -245,4 +251,28 @@ func (q Query) DefaultValues() Query {
 	q.last = defaultValuesExpr
 	q.sql = append(q.sql, "DEFAULT", "VALUES")
 	return q
+}
+
+func (q Query) Union() Query {
+	return q.appending(combiningQuery, "UNION")
+}
+
+func (q Query) UnionAll() Query {
+	return q.appending(combiningQuery, "UNION ALL")
+}
+
+func (q Query) Intersect() Query {
+	return q.appending(combiningQuery, "INTERSECT")
+}
+
+func (q Query) IntersectAll() Query {
+	return q.appending(combiningQuery, "INTERSECT ALL")
+}
+
+func (q Query) Except() Query {
+	return q.appending(combiningQuery, "EXCEPT")
+}
+
+func (q Query) ExceptAll() Query {
+	return q.appending(combiningQuery, "EXCEPT ALL")
 }
