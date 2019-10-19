@@ -33,21 +33,9 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Select("*").
 					From("my_table").
-					WhereP(qb.
+					Where(qb.
 						And("x = 1").
 						And("y = ?", 2))
-			},
-		},
-		{
-			name: "simple select with inline compound predicate",
-			expr: `SELECT * FROM my_table WHERE x = 1 AND y = ?`,
-			args: []interface{}{2},
-			query: func() qb.Query {
-				return qb.
-					Select("*").
-					From("my_table").
-					Where("x = 1").
-					And("y = ?", 2)
 			},
 		},
 		{
@@ -59,7 +47,7 @@ func TestQuery(t *testing.T) {
 					DialectOption(qb.DialectPq).
 					Select("*").
 					From("my_table").
-					WhereP(qb.
+					Where(qb.
 						And("x = ?", 1).
 						And("y = ?", 2))
 			},
@@ -72,7 +60,7 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Select("a", "b").
 					From("my_table").
-					WhereP(qb.
+					Where(qb.
 						And("x = ?", 1).
 						AndP(qb.
 							And("y = ?", 2).
@@ -100,7 +88,7 @@ func TestQuery(t *testing.T) {
 						Values(1, 2, 3)).
 					Select(`a AS "foo.bar"`).
 					From("my_table").
-					WhereP(qb.
+					Where(qb.
 						And("a = ?", 1))
 			},
 		},
@@ -150,7 +138,7 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Update("my_table").
 					Set("foo = 1").Set("bar = ?", "a").
-					Where("a = ?", 2)
+					Where(qb.And("a = ?", 2))
 			},
 		},
 		{
@@ -184,7 +172,7 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Update("my_table").
 					Set("updated = ?", qb.Lit("now()")).
-					Where("id = ?", 1)
+					Where(qb.And("id = ?", 1))
 			},
 		},
 		{
@@ -195,7 +183,7 @@ func TestQuery(t *testing.T) {
 				return qb.
 					Select("*").
 					From("my_table").
-					WhereP(qb.And("a = ?", 1).And("b = ?", qb.Lit("now()")))
+					Where(qb.And("a = ?", 1).And("b = ?", qb.Lit("now()")))
 			},
 		},
 		{
@@ -205,7 +193,7 @@ func TestQuery(t *testing.T) {
 			query: func() qb.Query {
 				return qb.
 					Select("*").From("my_table").
-					WhereP(qb.
+					Where(qb.
 						And("id = ?", 1).
 						Or("time < ?", qb.Lit("now()"))).
 					OrderBy("time ASC").

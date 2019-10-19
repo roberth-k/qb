@@ -195,7 +195,7 @@ func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 	return q
 }
 
-func (q Query) WhereP(pred Predicate) Query {
+func (q Query) Where(pred Predicate) Query {
 	if q.last != whereExpr {
 		q.w.WriteSQL("WHERE")
 	} else {
@@ -205,14 +205,6 @@ func (q Query) WhereP(pred Predicate) Query {
 	q.last = whereExpr
 	q.w.Append(&pred.w)
 	return q
-}
-
-func (q Query) Where(expr string, args ...interface{}) Query {
-	return q.WhereP(And(expr, args...))
-}
-
-func (q Query) And(expr string, args ...interface{}) Query {
-	return q.WhereP(And(expr, args...))
 }
 
 func (q Query) Returning(first string, rest ...string) Query {

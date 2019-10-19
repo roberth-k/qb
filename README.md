@@ -19,7 +19,7 @@ import "github.com/tetratom/qb"
 
 q := qb.
     Select("*").From("my_table").
-    WhereP(qb.
+    Where(qb.
         And("id = ?", 1).
         Or("time < ?", qb.Lit("now()"))).
     OrderBy("time ASC").
