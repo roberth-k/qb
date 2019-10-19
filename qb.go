@@ -2,6 +2,8 @@ package qb
 
 import (
 	"fmt"
+
+	"github.com/tetratom/qb/internal"
 )
 
 type Dialect int
@@ -12,12 +14,6 @@ const (
 	DialectGoracle
 )
 
-type literal string
-
-func (lit literal) String() string {
-	return string(lit)
-}
-
 func Lit(s string, args ...interface{}) interface{} {
-	return literal(fmt.Sprintf(s, args...))
+	return internal.Literal(fmt.Sprintf(s, args...))
 }

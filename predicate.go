@@ -1,15 +1,16 @@
 package qb
 
-import "strings"
+import (
+	"github.com/tetratom/qb/internal"
+)
 
 type Predicate struct {
-	sql   []string
-	args  []interface{}
+	w     internal.Writer
 	count int
 }
 
 func (p Predicate) String() string {
-	return strings.Join(p.sql, " ")
+	return p.w.String()
 }
 
 func Pred(expr string, args ...interface{}) Predicate {
@@ -22,12 +23,11 @@ func And(expr string, args ...interface{}) Predicate {
 
 func (my Predicate) And(expr string, args ...interface{}) Predicate {
 	if my.count > 0 {
-		my.sql = append(my.sql, "AND")
+		my.w.WriteSQL("AND")
 	}
 
 	my.count += 1
-	my.sql = append(my.sql, expr)
-	my.args = append(my.args, args...)
+	my.w.WriteExpr(expr, args...)
 	return my
 }
 
@@ -37,37 +37,34 @@ func AndP(predicate Predicate) Predicate {
 
 func (my Predicate) AndP(predicate Predicate) Predicate {
 	if my.count > 0 {
-		my.sql = append(my.sql, "AND")
+		my.w.WriteSQL("AND")
 	}
 
 	my.count += 1
-	my.sql = append(my.sql, "(")
-	my.sql = append(my.sql, predicate.sql...)
-	my.sql = append(my.sql, ")")
-	my.args = append(my.args, predicate.args...)
+	my.w.WriteSQL("(")
+	my.w.Append(predicate.w.SQL(), predicate.w.Args())
+	my.w.WriteSQL(")")
 	return my
 }
 
 func (my Predicate) Or(expr string, args ...interface{}) Predicate {
 	if my.count > 0 {
-		my.sql = append(my.sql, "OR")
+		my.w.WriteSQL("OR")
 	}
 
 	my.count += 1
-	my.sql = append(my.sql, expr)
-	my.args = append(my.args, args...)
+	my.w.WriteExpr(expr, args...)
 	return my
 }
 
 func (my Predicate) OrP(predicate Predicate) Predicate {
 	if my.count > 0 {
-		my.sql = append(my.sql, "OR")
+		my.w.WriteSQL("OR")
 	}
 
 	my.count += 1
-	my.sql = append(my.sql, "(")
-	my.sql = append(my.sql, predicate.sql...)
-	my.sql = append(my.sql, ")")
-	my.args = append(my.args, predicate.args...)
+	my.w.WriteSQL("(")
+	my.w.Append(predicate.w.SQL(), predicate.w.Args())
+	my.w.WriteSQL(")")
 	return my
 }

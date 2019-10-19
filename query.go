@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/tetratom/qb/internal"
 )
 
 type expressionType int
@@ -191,7 +193,7 @@ func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 			}
 
 			switch x := v.(type) {
-			case literal:
+			case internal.Literal:
 				q.writeSQL(x.String())
 			default:
 				q.writeArg(x)
@@ -212,8 +214,8 @@ func (q Query) WhereP(pred Predicate) Query {
 	}
 
 	q.last = whereExpr
-	q.sql = append(q.sql, pred.sql...)
-	q.args = append(q.args, pred.args...)
+	q.sql = append(q.sql, pred.w.SQL()...)
+	q.args = append(q.args, pred.w.Args()...)
 	return q
 }
 
@@ -288,7 +290,7 @@ func (q Query) Set(expr string, args ...interface{}) Query {
 
 		q.writeSQL(s[:j])
 		switch x := args[iarg].(type) {
-		case literal:
+		case internal.Literal:
 			q.writeSQL(x.String())
 		default:
 			q.writeArg(x)
