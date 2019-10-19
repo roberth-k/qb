@@ -39,6 +39,18 @@ func TestQuery(t *testing.T) {
 			},
 		},
 		{
+			name: "simple select with inline compound predicate",
+			expr: `SELECT * FROM my_table WHERE x = 1 AND y = ?`,
+			args: []interface{}{2},
+			query: func() qb.Query {
+				return qb.
+					Select("*").
+					From("my_table").
+					Where("x = 1").
+					And("y = ?", 2)
+			},
+		},
+		{
 			name: "simple select with compound predicate and pq dialect",
 			expr: `SELECT * FROM my_table WHERE x = $1 AND y = $2`,
 			args: []interface{}{1, 2},
