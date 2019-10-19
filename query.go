@@ -24,6 +24,8 @@ const (
 	withExpr
 	deleteFromExpr
 	combiningQuery
+	limitExpr
+	offsetExpr
 )
 
 type Query struct {
@@ -275,4 +277,16 @@ func (q Query) Except() Query {
 
 func (q Query) ExceptAll() Query {
 	return q.appending(combiningQuery, "EXCEPT ALL")
+}
+
+func (q Query) Limit(limit int64) Query {
+	return q.appending(limitExpr, "LIMIT "+strconv.FormatInt(limit, 10))
+}
+
+func (q Query) LimitAll() Query {
+	return q.appending(limitExpr, "LIMIT ALL")
+}
+
+func (q Query) Offset(offset int64) Query {
+	return q.appending(offsetExpr, "OFFSET "+strconv.FormatInt(offset, 10))
 }

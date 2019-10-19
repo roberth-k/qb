@@ -141,6 +141,19 @@ func TestQuery(t *testing.T) {
 					Where("a = ?", 2)
 			},
 		},
+		{
+			name: "limit and offset",
+			expr: `SELECT * FROM my_table ORDER BY a LIMIT 10 OFFSET 5`,
+			args: []interface{}{},
+			query: func() qb.Query {
+				return qb.
+					Select("*").
+					From("my_table").
+					OrderBy("a").
+					Limit(10).
+					Offset(5)
+			},
+		},
 	}
 
 	for _, test := range tests {
