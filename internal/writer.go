@@ -43,7 +43,7 @@ func (q *Writer) WriteExpr(expr string, args ...interface{}) {
 			break
 		}
 
-		j := strings.IndexByte(s, '?')
+		j := strings.IndexRune(s, '?')
 		if j < 0 {
 			q.WriteSQL(s)
 			break
@@ -58,6 +58,6 @@ func (q *Writer) WriteExpr(expr string, args ...interface{}) {
 		}
 
 		iarg++
-		i = j + 1
+		i += j + 1
 	}
 }

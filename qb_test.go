@@ -200,6 +200,21 @@ func TestQuery(t *testing.T) {
 					Limit(10)
 			},
 		},
+		{
+			name: "IN predicate",
+			expr: `SELECT * FROM my_table WHERE state IN ( ? , ? ) AND created_time < ? ORDER BY created_time DESC LIMIT 1 OFFSET 5`,
+			args: []interface{}{1, 2, 3},
+			query: func() qb.Query {
+				return qb.
+					Select("*").From("my_table").
+					Where(qb.
+						And("state IN (?, ?)", 1, 2).
+						And("created_time < ?", 3)).
+					OrderBy("created_time DESC").
+					Limit(1).
+					Offset(5)
+			},
+		},
 	}
 
 	for _, test := range tests {
