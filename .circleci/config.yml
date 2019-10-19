@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   test_go112:
     docker:
-      - image: circleci/golang:1.12.9
+      - image: circleci/golang:1.12
 
     steps:
       - checkout
