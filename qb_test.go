@@ -198,6 +198,20 @@ func TestQuery(t *testing.T) {
 					WhereP(qb.And("a = ?", 1).And("b = ?", qb.Lit("now()")))
 			},
 		},
+		{
+			name: "readme example",
+			expr: `SELECT * FROM my_table WHERE id = ? OR time < now() ORDER BY time ASC LIMIT 10`,
+			args: []interface{}{1},
+			query: func() qb.Query {
+				return qb.
+					Select("*").From("my_table").
+					WhereP(qb.
+						And("id = ?", 1).
+						Or("time < ?", qb.Lit("now()"))).
+					OrderBy("time ASC").
+					Limit(10)
+			},
+		},
 	}
 
 	for _, test := range tests {

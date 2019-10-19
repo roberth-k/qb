@@ -17,7 +17,14 @@ qb is a simple SQL query builder for Golang.
 ```go
 import "github.com/tetratom/qb"
 
-q := qb.Select("*").From("my_table").Where(qb.AndS("id = ?", 1))
+q := qb.
+    Select("*").From("my_table").
+    WhereP(qb.
+        And("id = ?", 1).
+        Or("time < ?", qb.Lit("now()"))).
+    OrderBy("time ASC").
+    Limit(10)
+
 // q.SQL() is "SELECT * FROM my_table WHERE id = ?".
 // q.Args() is []interface{1}.
 row := tx.QueryRow(q.SQL(), q.Args()...)
