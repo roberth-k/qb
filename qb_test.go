@@ -154,6 +154,38 @@ func TestQuery(t *testing.T) {
 					Offset(5)
 			},
 		},
+		{
+			name: "insert with literal",
+			expr: `INSERT INTO my_table ( a , b , c ) VALUES ( ? , ? , now() )`,
+			args: []interface{}{1, 2},
+			query: func() qb.Query {
+				return qb.
+					InsertInto("my_table", "a", "b", "c").
+					Values(1, 2, qb.Lit("now()"))
+			},
+		},
+		{
+			name: "update with literal",
+			expr: `UPDATE my_table SET updated = now() WHERE id = ?`,
+			args: []interface{}{1},
+			query: func() qb.Query {
+				return qb.
+					Update("my_table").
+					Set("updated = ?", qb.Lit("now()")).
+					Where("id = ?", 1)
+			},
+		},
+		{
+			name: "query with literal",
+			expr: `SELECT * FROM my_table WHERE a = ? AND b = now()`,
+			args: []interface{}{1},
+			query: func() qb.Query {
+				return qb.
+					Select("*").
+					From("my_table").
+					WhereP(qb.And("a = ?", 1).And("b = ?", qb.Lit("now()")))
+			},
+		},
 	}
 
 	for _, test := range tests {

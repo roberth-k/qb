@@ -40,6 +40,20 @@ func (q Query) String() string {
 	return q.SQL()
 }
 
+func (q *Query) writeSQL(s ...string) {
+	for i := range s {
+		// todo: efficiency...
+		s[i] = strings.TrimSpace(s[i])
+	}
+
+	q.sql = append(q.sql, s...)
+}
+
+func (q *Query) writeArg(v interface{}) {
+	q.writeSQL("?")
+	q.args = append(q.args, v)
+}
+
 // TODO: Support escapes.
 var placeholderPattern = regexp.MustCompile(`\?`)
 
@@ -155,7 +169,7 @@ func DeleteFrom(table string) Query {
 
 func (q Query) DeleteFrom(table string) Query {
 	q.last = deleteFromExpr
-	q.sql = append(q.sql, "DELETE FROM", table)
+	q.writeSQL("DELETE FROM", table)
 	return q
 }
 
@@ -165,22 +179,26 @@ func (q Query) Values(values ...interface{}) Query {
 
 func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 	q.last = valuesExpr
-	q.sql = append(q.sql, "VALUES")
+	q.writeSQL("VALUES")
 
 	all := append([][]interface{}{first}, rest...)
 
 	for _, tuple := range all {
-		// TODO: Yes, this is horribly inefficient.
-		// TODO: At minimum, q.sql should be pre-grown.
-		q.sql = append(q.sql, "(")
-		for i := range tuple {
+		q.writeSQL("(")
+		for i, v := range tuple {
 			if i > 0 {
-				q.sql = append(q.sql, ",")
+				q.writeSQL(",")
 			}
-			q.sql = append(q.sql, "?")
+
+			switch x := v.(type) {
+			case literal:
+				q.writeSQL(x.String())
+			default:
+				q.writeArg(x)
+			}
 		}
-		q.sql = append(q.sql, ")")
-		q.args = append(q.args, tuple...)
+
+		q.writeSQL(")")
 	}
 
 	return q
@@ -244,8 +262,33 @@ func (q Query) Set(expr string, args ...interface{}) Query {
 	}
 
 	q.last = setExpr
-	q.sql = append(q.sql, prefix, expr)
-	q.args = append(q.args, args...)
+	q.writeSQL(prefix)
+
+	var i, iarg int
+	for {
+		s := expr[i:]
+		if len(s) == 0 {
+			break
+		}
+
+		j := strings.IndexByte(s, '?')
+		if j < 0 {
+			q.writeSQL(s)
+			break
+		}
+
+		q.writeSQL(s[:j])
+		switch x := args[iarg].(type) {
+		case literal:
+			q.writeSQL(x.String())
+		default:
+			q.writeArg(x)
+		}
+
+		iarg++
+		i = j + 1
+	}
+
 	return q
 }
 
