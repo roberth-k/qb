@@ -17,3 +17,15 @@ const (
 func Lit(s string, args ...interface{}) interface{} {
 	return internal.Literal(fmt.Sprintf(s, args...))
 }
+
+func WithDialectPQ() Query {
+	return DialectOption(DialectPq)
+}
+
+func WithDialectDefault() Query {
+	return DialectOption(DialectDefault)
+}
+
+func WithDialectGoracle() Query {
+	return DialectOption(DialectGoracle)
+}
