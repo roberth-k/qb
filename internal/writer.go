@@ -21,9 +21,9 @@ func (q *Writer) String() string {
 	return strings.Join(q.sql, " ")
 }
 
-func (q *Writer) Append(sql []string, args []interface{}) {
-	q.sql = append(q.sql, sql...)
-	q.args = append(q.args, args...)
+func (q *Writer) Append(w *Writer) {
+	q.sql = append(q.sql, w.sql...)
+	q.args = append(q.args, w.args...)
 }
 
 func (q *Writer) WriteSQL(s ...string) {

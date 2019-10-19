@@ -42,7 +42,7 @@ func (my Predicate) AndP(predicate Predicate) Predicate {
 
 	my.count += 1
 	my.w.WriteSQL("(")
-	my.w.Append(predicate.w.SQL(), predicate.w.Args())
+	my.w.Append(&predicate.w)
 	my.w.WriteSQL(")")
 	return my
 }
@@ -64,7 +64,7 @@ func (my Predicate) OrP(predicate Predicate) Predicate {
 
 	my.count += 1
 	my.w.WriteSQL("(")
-	my.w.Append(predicate.w.SQL(), predicate.w.Args())
+	my.w.Append(&predicate.w)
 	my.w.WriteSQL(")")
 	return my
 }

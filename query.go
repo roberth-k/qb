@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/tetratom/qb/internal"
 )
@@ -31,8 +30,7 @@ const (
 )
 
 type Query struct {
-	sql  []string
-	args []interface{}
+	w    internal.Writer
 	last expressionType
 	str  string
 	Dialect
@@ -40,20 +38,6 @@ type Query struct {
 
 func (q Query) String() string {
 	return q.SQL()
-}
-
-func (q *Query) writeSQL(s ...string) {
-	for i := range s {
-		// todo: efficiency...
-		s[i] = strings.TrimSpace(s[i])
-	}
-
-	q.sql = append(q.sql, s...)
-}
-
-func (q *Query) writeArg(v interface{}) {
-	q.writeSQL("?")
-	q.args = append(q.args, v)
 }
 
 // TODO: Support escapes.
@@ -64,7 +48,7 @@ func (q *Query) SQL() string {
 		return q.str
 	}
 
-	sql := strings.Join(q.sql, " ")
+	sql := q.w.String()
 
 	var prefix string
 	switch q.Dialect {
@@ -89,8 +73,9 @@ func (q *Query) SQL() string {
 }
 
 func (q *Query) Args() []interface{} {
-	args := make([]interface{}, len(q.args))
-	copy(args, q.args)
+	in := q.w.Args()
+	args := make([]interface{}, len(in))
+	copy(args, in)
 	return args
 }
 
@@ -114,10 +99,9 @@ func (q Query) With(name string, query Query) Query {
 	}
 
 	q.last = withExpr
-	q.sql = append(q.sql, prefix, name, "AS", "(")
-	q.sql = append(q.sql, query.sql...)
-	q.sql = append(q.sql, ")")
-	q.args = append(q.args, query.args...)
+	q.w.WriteSQL(prefix, name, "AS", "(")
+	q.w.Append(&query.w)
+	q.w.WriteSQL(")")
 	return q
 }
 
@@ -127,16 +111,16 @@ func Select(first string, rest ...string) Query {
 
 func (q Query) Select(first string, rest ...string) Query {
 	q.last = selectExpr
-	q.sql = append(q.sql, "SELECT", first)
+	q.w.WriteSQL("SELECT", first)
 	for _, column := range rest {
-		q.sql = append(q.sql, ",", column)
+		q.w.WriteSQL(",", column)
 	}
 	return q
 }
 
 func (q Query) From(expr string) Query {
 	q.last = fromExpr
-	q.sql = append(q.sql, "FROM", expr)
+	q.w.WriteSQL("FROM", expr)
 	return q
 }
 
@@ -146,7 +130,7 @@ func InsertInto(expr string, columns ...string) Query {
 
 func (q Query) InsertInto(expr string, columns ...string) Query {
 	q.last = insertIntoExpr
-	q.sql = append(q.sql, "INSERT INTO", expr)
+	q.w.WriteSQL("INSERT INTO", expr)
 
 	if len(columns) > 0 {
 		for i, column := range columns {
@@ -157,9 +141,9 @@ func (q Query) InsertInto(expr string, columns ...string) Query {
 				start = ","
 			}
 
-			q.sql = append(q.sql, start, column)
+			q.w.WriteSQL(start, column)
 		}
-		q.sql = append(q.sql, ")")
+		q.w.WriteSQL(")")
 	}
 
 	return q
@@ -171,7 +155,7 @@ func DeleteFrom(table string) Query {
 
 func (q Query) DeleteFrom(table string) Query {
 	q.last = deleteFromExpr
-	q.writeSQL("DELETE FROM", table)
+	q.w.WriteSQL("DELETE FROM", table)
 	return q
 }
 
@@ -181,26 +165,27 @@ func (q Query) Values(values ...interface{}) Query {
 
 func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 	q.last = valuesExpr
-	q.writeSQL("VALUES")
+	q.w.WriteSQL("VALUES")
 
 	all := append([][]interface{}{first}, rest...)
 
 	for _, tuple := range all {
-		q.writeSQL("(")
+		q.w.WriteSQL("(")
+
 		for i, v := range tuple {
 			if i > 0 {
-				q.writeSQL(",")
+				q.w.WriteSQL(",")
 			}
 
 			switch x := v.(type) {
 			case internal.Literal:
-				q.writeSQL(x.String())
+				q.w.WriteSQL(x.String())
 			default:
-				q.writeArg(x)
+				q.w.WriteArg(x)
 			}
 		}
 
-		q.writeSQL(")")
+		q.w.WriteSQL(")")
 	}
 
 	return q
@@ -208,14 +193,13 @@ func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
 
 func (q Query) WhereP(pred Predicate) Query {
 	if q.last != whereExpr {
-		q.writeSQL("WHERE")
+		q.w.WriteSQL("WHERE")
 	} else {
-		q.writeSQL("AND")
+		q.w.WriteSQL("AND")
 	}
 
 	q.last = whereExpr
-	q.sql = append(q.sql, pred.w.SQL()...)
-	q.args = append(q.args, pred.w.Args()...)
+	q.w.Append(&pred.w)
 	return q
 }
 
@@ -229,26 +213,25 @@ func (q Query) And(expr string, args ...interface{}) Query {
 
 func (q Query) Returning(first string, rest ...string) Query {
 	q.last = returningExpr
-	q.sql = append(q.sql, "RETURNING", first)
+	q.w.WriteSQL("RETURNING", first)
 	for _, column := range rest {
-		q.sql = append(q.sql, ",", column)
+		q.w.WriteSQL(",", column)
 	}
 	return q
 }
 
 func (q Query) OrderBy(first string, rest ...string) Query {
 	q.last = orderByExpr
-	q.sql = append(q.sql, "ORDER BY", first)
+	q.w.WriteSQL("ORDER BY", first)
 	for _, column := range rest {
-		q.sql = append(q.sql, ",", column)
+		q.w.WriteSQL(",", column)
 	}
 	return q
 }
 
 func (q Query) appending(t expressionType, expr string, args ...interface{}) Query {
 	q.last = t
-	q.sql = append(q.sql, expr)
-	q.args = append(q.args, args...)
+	q.w.WriteExpr(expr, args...)
 	return q
 }
 
@@ -262,7 +245,7 @@ func Update(table string) Query {
 
 func (q Query) Update(table string) Query {
 	q.last = updateExpr
-	q.sql = append(q.sql, "UPDATE", table)
+	q.w.WriteSQL("UPDATE", table)
 	return q
 }
 
@@ -273,39 +256,14 @@ func (q Query) Set(expr string, args ...interface{}) Query {
 	}
 
 	q.last = setExpr
-	q.writeSQL(prefix)
-
-	var i, iarg int
-	for {
-		s := expr[i:]
-		if len(s) == 0 {
-			break
-		}
-
-		j := strings.IndexByte(s, '?')
-		if j < 0 {
-			q.writeSQL(s)
-			break
-		}
-
-		q.writeSQL(s[:j])
-		switch x := args[iarg].(type) {
-		case internal.Literal:
-			q.writeSQL(x.String())
-		default:
-			q.writeArg(x)
-		}
-
-		iarg++
-		i = j + 1
-	}
-
+	q.w.WriteSQL(prefix)
+	q.w.WriteExpr(expr, args...)
 	return q
 }
 
 func (q Query) DefaultValues() Query {
 	q.last = defaultValuesExpr
-	q.sql = append(q.sql, "DEFAULT", "VALUES")
+	q.w.WriteSQL("DEFAULT VALUES")
 	return q
 }
 
