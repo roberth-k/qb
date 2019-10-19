@@ -79,6 +79,10 @@ func (q *Query) Args() []interface{} {
 	return args
 }
 
+func (q Query) Build() (string, []interface{}) {
+	return q.SQL(), q.Args()
+}
+
 func DialectOption(d Dialect) Query {
 	return Query{Dialect: d}
 }
