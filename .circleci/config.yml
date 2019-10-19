@@ -1,39 +1,60 @@
 version: 2.1
 
-jobs:
-  test_go112:
-    docker:
-      - image: circleci/golang:1.12
-
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
-      - run: go test ./...
-      - save_cache:
-          key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
-          paths:
-            - "/go/pkg/mod"
-
-  test_go113:
-    docker:
-      - image: circleci/golang:1.13
-
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
-      - run: go test ./...
-      - save_cache:
-          key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
-          paths:
-            - "/go/pkg/mod"
+orbs:
+  codecov: codecov/codecov@1.0.5
 
 workflows:
   version: 2
   default:
     jobs:
-      - test_go112
-      - test_go113
+      - go111
+      - go112
+      - go113
+
+jobs:
+  go111:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+      - run: go mod download
+      - save_cache:
+          key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+          paths:
+            - "/go/pkg/mod"
+      - run: go test ./...
+
+  go112:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+      - run: go mod download
+      - save_cache:
+          key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+          paths:
+            - "/go/pkg/mod"
+      - run: go test ./...
+
+  go113:
+    docker:
+      - image: circleci/golang:1.13
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+      - run: go mod download
+      - save_cache:
+          key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+          paths:
+            - "/go/pkg/mod"
+      - run: go test ./... -coverprofile=/tmp/coverprofile -covermode=atomic
+      - codecov/upload:
+          file: /tmp/coverprofile
