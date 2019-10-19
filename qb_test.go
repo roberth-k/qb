@@ -1,9 +1,11 @@
 package qb_test
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/tetratom/qb"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/tetratom/qb"
 )
 
 func TestQuery(t *testing.T) {
