@@ -27,6 +27,7 @@ const (
 	combiningQuery
 	limitExpr
 	offsetExpr
+	joinExpr
 )
 
 type Query struct {
@@ -297,4 +298,31 @@ func (q Query) LimitAll() Query {
 
 func (q Query) Offset(offset int64) Query {
 	return q.appending(offsetExpr, "OFFSET "+strconv.FormatInt(offset, 10))
+}
+
+func (q Query) joinOn(joinType string, table string, expr string, args ...interface{}) Query {
+	q.last = joinExpr
+	q.w.WriteExpr(joinType+" "+table+" ON "+expr, args...)
+	return q
+}
+
+func (q Query) joinUsing(joinType string, table string, columns ...string) Query {
+	q.last = joinExpr
+	q.w.WriteSQL(joinType + " " + table + " USING (")
+	for i, column := range columns {
+		if i > 0 {
+			q.w.WriteSQL(",")
+		}
+		q.w.WriteSQL(column)
+	}
+	q.w.WriteSQL(")")
+	return q
+}
+
+func (q Query) JoinOn(table string, expr string, args ...interface{}) Query {
+	return q.joinOn("JOIN", table, expr, args...)
+}
+
+func (q Query) JoinUsing(table string, columns ...string) Query {
+	return q.joinUsing("JOIN", table, columns...)
 }

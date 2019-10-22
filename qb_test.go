@@ -215,6 +215,22 @@ func TestQuery(t *testing.T) {
 					Offset(5)
 			},
 		},
+		{
+			name: "JOIN ON",
+			expr: `SELECT * FROM t1 JOIN t2 ON t1.id = t2.id`,
+			args: []interface{}{},
+			query: func() qb.Query {
+				return qb.Select("*").From("t1").JoinOn("t2", "t1.id = t2.id")
+			},
+		},
+		{
+			name: "JOIN USING",
+			expr: `SELECT * FROM t1 JOIN t2 USING ( a , b )`,
+			args: []interface{}{},
+			query: func() qb.Query {
+				return qb.Select("*").From("t1").JoinUsing("t2", "a", "b")
+			},
+		},
 	}
 
 	for _, test := range tests {
