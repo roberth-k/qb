@@ -326,3 +326,27 @@ func (q Query) JoinOn(table string, expr string, args ...interface{}) Query {
 func (q Query) JoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("JOIN", table, columns...)
 }
+
+func (q Query) LeftOuterJoinOn(table string, expr string, args ...interface{}) Query {
+	return q.joinOn("LEFT OUTER JOIN", table, expr, args...)
+}
+
+func (q Query) LeftOuterJoinUsing(table string, columns ...string) Query {
+	return q.joinUsing("LEFT OUTER JOIN", table, columns...)
+}
+
+func (q Query) RightOuterJoinOn(table string, expr string, args ...interface{}) Query {
+	return q.joinOn("RIGHT OUTER JOIN", table, expr, args...)
+}
+
+func (q Query) RightOuterJoinUsing(table string, columns ...string) Query {
+	return q.joinUsing("RIGHT OUTER JOIN", table, columns...)
+}
+
+func (q Query) FulltOuterJoinOn(table string, expr string, args ...interface{}) Query {
+	return q.joinOn("FULL OUTER JOIN", table, expr, args...)
+}
+
+func (q Query) FullOuterJoinUsing(table string, columns ...string) Query {
+	return q.joinUsing("FULL OUTER JOIN", table, columns...)
+}
