@@ -327,26 +327,42 @@ func (q Query) JoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("JOIN", table, columns...)
 }
 
-func (q Query) LeftOuterJoinOn(table string, expr string, args ...interface{}) Query {
-	return q.joinOn("LEFT OUTER JOIN", table, expr, args...)
+func (q Query) LeftJoinOn(table string, expr string, args ...interface{}) Query {
+	return q.joinOn("LEFT JOIN", table, expr, args...)
 }
 
-func (q Query) LeftOuterJoinUsing(table string, columns ...string) Query {
-	return q.joinUsing("LEFT OUTER JOIN", table, columns...)
+func (q Query) LeftJoinUsing(table string, columns ...string) Query {
+	return q.joinUsing("LEFT JOIN", table, columns...)
 }
 
-func (q Query) RightOuterJoinOn(table string, expr string, args ...interface{}) Query {
-	return q.joinOn("RIGHT OUTER JOIN", table, expr, args...)
+func (q Query) RightJoinOn(table string, expr string, args ...interface{}) Query {
+	return q.joinOn("RIGHT JOIN", table, expr, args...)
 }
 
-func (q Query) RightOuterJoinUsing(table string, columns ...string) Query {
-	return q.joinUsing("RIGHT OUTER JOIN", table, columns...)
+func (q Query) RightJoinUsing(table string, columns ...string) Query {
+	return q.joinUsing("RIGHT JOIN", table, columns...)
 }
 
-func (q Query) FulltOuterJoinOn(table string, expr string, args ...interface{}) Query {
-	return q.joinOn("FULL OUTER JOIN", table, expr, args...)
+func (q Query) FullJoinOn(table string, expr string, args ...interface{}) Query {
+	return q.joinOn("FULL JOIN", table, expr, args...)
 }
 
-func (q Query) FullOuterJoinUsing(table string, columns ...string) Query {
-	return q.joinUsing("FULL OUTER JOIN", table, columns...)
+func (q Query) FullJoinUsing(table string, columns ...string) Query {
+	return q.joinUsing("FULL JOIN", table, columns...)
+}
+
+func (q Query) NaturalJoin(table string) Query {
+	return q.appending(joinExpr, "NATURAL JOIN "+table)
+}
+
+func (q Query) NaturalLeftJoin(table string) Query {
+	return q.appending(joinExpr, "NATURAL LEFT JOIN "+table)
+}
+
+func (q Query) NaturalRightJoin(table string) Query {
+	return q.appending(joinExpr, "NATURAL RIGHT JOIN "+table)
+}
+
+func (q Query) NaturalFullJoin(table string) Query {
+	return q.appending(joinExpr, "NATURAL FULL JOIN "+table)
 }
