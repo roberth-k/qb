@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/tetratom/qb/internal"
 )
@@ -28,6 +29,8 @@ const (
 	limitExpr
 	offsetExpr
 	joinExpr
+	groupByExpr
+	havingExpr
 )
 
 type Query struct {
@@ -378,4 +381,15 @@ func Multiple(qs ...Query) Query {
 		out.w.Append(&in.w)
 	}
 	return out
+}
+
+func (q Query) GroupBy(fields ...string) Query {
+	return q.appending(groupByExpr, "GROUP BY "+strings.Join(fields, ", "))
+}
+
+func (q Query) Having(predicate Predicate) Query {
+	q.last = havingExpr
+	q.w.WriteSQL("HAVING")
+	q.w.Append(&predicate.w)
+	return q
 }

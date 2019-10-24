@@ -242,6 +242,17 @@ func TestQuery(t *testing.T) {
 					DialectOption(qb.DialectPq)
 			},
 		},
+		{
+			name: "GROUP BY ... HAVING ...",
+			expr: "SELECT * FROM t1 GROUP BY a, b HAVING a < 500 AND b > ?",
+			args: []interface{}{1},
+			query: func() qb.Query {
+				return qb.
+					Select("*").From("t1").
+					GroupBy("a", "b").
+					Having(qb.And("a < 500").And("b > ?", 1))
+			},
+		},
 	}
 
 	for _, test := range tests {
