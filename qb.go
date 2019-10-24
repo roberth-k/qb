@@ -12,6 +12,7 @@ const (
 	DialectDefault Dialect = iota
 	DialectPq
 	DialectGoracle
+	DialectMssql
 )
 
 func Lit(s string, args ...interface{}) interface{} {
@@ -28,4 +29,8 @@ func WithDialectDefault() Query {
 
 func WithDialectGoracle() Query {
 	return DialectOption(DialectGoracle)
+}
+
+func WithDialectMssql() Query {
+	return DialectOption(DialectMssql)
 }

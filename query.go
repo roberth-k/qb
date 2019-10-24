@@ -59,6 +59,8 @@ func (q *Query) SQL() string {
 		prefix = "$"
 	case DialectGoracle:
 		prefix = ":"
+	case DialectMssql:
+		prefix = "@p"
 	default:
 		panic(fmt.Errorf("unrecognised dialect %d", q.Dialect))
 	}
