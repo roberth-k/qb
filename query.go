@@ -368,3 +368,14 @@ func (q Query) NaturalRightJoin(table string) Query {
 func (q Query) NaturalFullJoin(table string) Query {
 	return q.appending(joinExpr, "NATURAL FULL JOIN "+table)
 }
+
+func Multiple(qs ...Query) Query {
+	var out Query
+	for i, in := range qs {
+		if i > 0 {
+			out.w.WriteSQL(";")
+		}
+		out.w.Append(&in.w)
+	}
+	return out
+}

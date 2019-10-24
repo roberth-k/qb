@@ -231,6 +231,17 @@ func TestQuery(t *testing.T) {
 				return qb.Select("*").From("t1").JoinUsing("t2", "a", "b")
 			},
 		},
+		{
+			name: "Multiple queries",
+			expr: "SELECT * FROM t1 WHERE a = $1 ; SELECT * FROM t2 WHERE b = $2",
+			args: []interface{}{1, 2},
+			query: func() qb.Query {
+				return qb.Multiple(
+					qb.Select("*").From("t1").Where(qb.And("a = ?", 1)),
+					qb.Select("*").From("t2").Where(qb.And("b = ?", 2))).
+					DialectOption(qb.DialectPq)
+			},
+		},
 	}
 
 	for _, test := range tests {
