@@ -16,7 +16,7 @@
 
 # highlights
 
-- `go get github.com/tetratom/qb`
+- `go get -u github.com/tetratom/qb`
 - [GoDoc](https://godoc.org/github.com/tetratom/qb)
 - More examples can be found in [qb_test.go](./qb_test.go).
 - All methods take value receivers and return values.
@@ -38,4 +38,36 @@ q := qb.
 // q.SQL() is "SELECT * FROM my_table WHERE id = ?".
 // q.Args() is []interface{1}.
 row := tx.QueryRow(q.SQL(), q.Args()...)
+```
+
+# thread-safe and reusable builders
+
+_qb_ builders should be used the same as the `append()` built-in. The builders
+take and return values, and internally keep state such that one builder value
+can be re-used for different queries.  For example:
+
+```go
+qbase := qb.Select("col1", "col2")
+q1 := qbase.From("t1") // q1 is: SELECT col1, col2 FROM t1
+q2 := qbase.From("t2") // q2 is: SELECT col1, col2 FROM t2
+// qbase is: SELECT col1, col2
+``` 
+
+Just like with `append()`, the return value of calling a builder method must be
+assigned back into a variable to be used. For example:
+
+```go
+func Search(name string, ordered bool) qb.Query {
+    q := qb.Select("*").From("members")
+
+    if name != "" {
+        q = q.Where(qb.And("name = ?", name))
+    }
+    
+    if ordered {
+        q = q.OrderBy("created_at DESC")
+    }
+    
+    return q
+}
 ```
