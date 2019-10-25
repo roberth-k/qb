@@ -233,7 +233,7 @@ func TestQuery(t *testing.T) {
 		},
 		{
 			name: "Multiple queries",
-			expr: "SELECT * FROM t1 WHERE a = $1 ; SELECT * FROM t2 WHERE b = $2",
+			expr: "SELECT * FROM t1 WHERE a = $1 ; SELECT * FROM t2 WHERE b = $2 ;",
 			args: []interface{}{1, 2},
 			query: func() qb.Query {
 				return qb.Multiple(

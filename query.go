@@ -368,25 +368,31 @@ func (q Query) NaturalRightJoin(table string) Query {
 	return q.appending(joinExpr, "NATURAL RIGHT JOIN "+table)
 }
 
+// Appends a NATURAL FULL JOIN clause.
+//  ... NATURAL FULL JOIN table
 func (q Query) NaturalFullJoin(table string) Query {
 	return q.appending(joinExpr, "NATURAL FULL JOIN "+table)
 }
 
+// Creates a query with multiple statements.
+//  qs0; [qs1; [qs2; ...]]
 func Multiple(qs ...Query) Query {
 	var out Query
-	for i, in := range qs {
-		if i > 0 {
-			out.w.WriteSQL(";")
-		}
+	for _, in := range qs {
 		out.w.Append(&in.w)
+		out.w.WriteSQL(";")
 	}
 	return out
 }
 
+// Appends a GROUP BY clause.
+//  ... GROUP BY field0[, field1[, ...]].
 func (q Query) GroupBy(fields ...string) Query {
 	return q.appending(groupByExpr, "GROUP BY "+strings.Join(fields, ", "))
 }
 
+// Appends a HAVING clause. This should follow a GROUP BY clause.
+//  ... HAVING predicate
 func (q Query) Having(predicate Predicate) Query {
 	q.last = havingExpr
 	q.w.WriteSQL("HAVING")
