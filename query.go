@@ -115,16 +115,41 @@ func (q Query) With(name string, query Query) Query {
 	return q
 }
 
-func Select(first string, rest ...string) Query {
-	return Query{}.Select(first, rest...)
+func Select(columns ...string) Query {
+	return Query{}.Select(columns...)
 }
 
-func (q Query) Select(first string, rest ...string) Query {
-	q.last = selectExpr
-	q.w.WriteSQL("SELECT", first)
-	for _, column := range rest {
-		q.w.WriteSQL(",", column)
+func (q Query) Select(columns ...string) Query {
+	if q.last != selectExpr {
+		q.last = selectExpr
+		q.w.WriteSQL("SELECT")
+	} else {
+		q.w.WriteSQL(",")
 	}
+
+	for i, column := range columns {
+		if i > 0 {
+			q.w.WriteSQL(",")
+		}
+
+		q.w.WriteSQL(column)
+	}
+	return q
+}
+
+func SelectColumn(expr string, args ...interface{}) Query {
+	return Query{}.SelectColumn(expr, args...)
+}
+
+func (q Query) SelectColumn(expr string, args ...interface{}) Query {
+	if q.last != selectExpr {
+		q.last = selectExpr
+		q.w.WriteSQL("SELECT")
+	} else {
+		q.w.WriteSQL(",")
+	}
+
+	q.w.WriteExpr(expr, args...)
 	return q
 }
 

@@ -253,6 +253,21 @@ func TestQuery(t *testing.T) {
 					Having(qb.And("a < 500").And("b > ?", 1))
 			},
 		},
+		{
+			name: "SelectColumn",
+			expr: `INSERT INTO t1 ( a , b , c , d ) SELECT a ,  ? , c ,  ? FROM t2 WHERE x = ?`,
+			args: []interface{}{1, 2, 3},
+			query: func() qb.Query {
+				return qb.
+					InsertInto("t1", "a", "b", "c", "d").
+					Select("a").
+					SelectColumn("?", 1).
+					Select("c").
+					SelectColumn("?", 2).
+					From("t2").
+					Where(qb.And("x = ?", 3))
+			},
+		},
 	}
 
 	for _, test := range tests {
