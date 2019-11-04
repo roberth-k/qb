@@ -330,9 +330,10 @@ func (q Query) Offset(offset int64) Query {
 	return q.appending(offsetExpr, "OFFSET "+strconv.FormatInt(offset, 10))
 }
 
-func (q Query) joinOn(joinType string, table string, expr string, args ...interface{}) Query {
+func (q Query) joinOn(joinType string, table string, predicate Predicate) Query {
 	q.last = joinExpr
-	q.w.WriteExpr(joinType+" "+table+" ON "+expr, args...)
+	q.w.WriteSQL(joinType+" "+table+" ON")
+	q.w.Append(&predicate.w)
 	return q
 }
 
@@ -349,32 +350,32 @@ func (q Query) joinUsing(joinType string, table string, columns ...string) Query
 	return q
 }
 
-func (q Query) JoinOn(table string, expr string, args ...interface{}) Query {
-	return q.joinOn("JOIN", table, expr, args...)
+func (q Query) JoinOn(table string, predicate Predicate) Query {
+	return q.joinOn("JOIN", table, predicate)
 }
 
 func (q Query) JoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("JOIN", table, columns...)
 }
 
-func (q Query) LeftJoinOn(table string, expr string, args ...interface{}) Query {
-	return q.joinOn("LEFT JOIN", table, expr, args...)
+func (q Query) LeftJoinOn(table string, predicate Predicate) Query {
+	return q.joinOn("LEFT JOIN", table, predicate)
 }
 
 func (q Query) LeftJoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("LEFT JOIN", table, columns...)
 }
 
-func (q Query) RightJoinOn(table string, expr string, args ...interface{}) Query {
-	return q.joinOn("RIGHT JOIN", table, expr, args...)
+func (q Query) RightJoinOn(table string, predicate Predicate) Query {
+	return q.joinOn("RIGHT JOIN", table, predicate)
 }
 
 func (q Query) RightJoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("RIGHT JOIN", table, columns...)
 }
 
-func (q Query) FullJoinOn(table string, expr string, args ...interface{}) Query {
-	return q.joinOn("FULL JOIN", table, expr, args...)
+func (q Query) FullJoinOn(table string, predicate Predicate) Query {
+	return q.joinOn("FULL JOIN", table, predicate)
 }
 
 func (q Query) FullJoinUsing(table string, columns ...string) Query {
