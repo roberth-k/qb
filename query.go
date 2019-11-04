@@ -425,3 +425,13 @@ func (q Query) Having(predicate Predicate) Query {
 	q.w.Append(&predicate.w)
 	return q
 }
+
+func (q Query) ForUpdate() Query {
+	q.w.WriteSQL("FOR UPDATE")
+	return q
+}
+
+func (q Query) ForShare() Query {
+	q.w.WriteSQL("FOR SHARE")
+	return q
+}
