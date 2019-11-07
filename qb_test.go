@@ -278,6 +278,31 @@ func TestQuery(t *testing.T) {
 					Where(qb.And("x = ?", 3))
 			},
 		},
+		{
+			name: "subquery",
+			expr: `INSERT INTO t1 ( a , b , c ) SELECT  ? ,  ( SELECT id FROM t2 WHERE b = ? ) , 3 FROM t3 WHERE a = 1 AND b = ? AND c = ( SELECT id FROM t3 WHERE c = ? )`,
+			args: []interface{}{1, 2, 3, 4},
+			query: func() qb.Query {
+				return qb.
+					InsertInto(`t1`, `a`, `b`, `c`).
+					SelectColumn(`?`, 1).
+					SelectColumn(`?`, qb.
+						Select(`id`).
+						From(`t2`).
+						Where(qb.
+							And(`b = ?`, 2))).
+					SelectColumn(`3`).
+					From(`t3`).
+					Where(qb.
+						And(`a = 1`).
+						And(`b = ?`, 3).
+						And(`c = ?`, qb.
+							Select(`id`).
+							From(`t3`).
+							Where(qb.
+								And(`c = ?`, 4))))
+			},
+		},
 	}
 
 	for _, test := range tests {

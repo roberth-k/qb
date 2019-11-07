@@ -53,6 +53,10 @@ func (q *sqlWriter) WriteExpr(expr string, args ...interface{}) {
 		switch x := args[iarg].(type) {
 		case literal:
 			q.WriteSQL(x.String())
+		case Query:
+			q.WriteSQL("(")
+			q.Append(&x.w)
+			q.WriteSQL(")")
 		default:
 			q.WriteArg(x)
 		}
