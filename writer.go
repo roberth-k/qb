@@ -1,41 +1,41 @@
-package internal
+package qb
 
 import (
 	"strings"
 )
 
-type Writer struct {
+type sqlWriter struct {
 	sql  []string
 	args []interface{}
 }
 
-func (q *Writer) SQL() []string {
+func (q *sqlWriter) SQL() []string {
 	return q.sql
 }
 
-func (q *Writer) Args() []interface{} {
+func (q *sqlWriter) Args() []interface{} {
 	return q.args
 }
 
-func (q *Writer) String() string {
+func (q *sqlWriter) String() string {
 	return strings.Join(q.sql, " ")
 }
 
-func (q *Writer) Append(w *Writer) {
+func (q *sqlWriter) Append(w *sqlWriter) {
 	q.sql = append(q.sql, w.sql...)
 	q.args = append(q.args, w.args...)
 }
 
-func (q *Writer) WriteSQL(s ...string) {
+func (q *sqlWriter) WriteSQL(s ...string) {
 	q.sql = append(q.sql, s...)
 }
 
-func (q *Writer) WriteArg(v interface{}) {
+func (q *sqlWriter) WriteArg(v interface{}) {
 	q.WriteSQL("?")
 	q.args = append(q.args, v)
 }
 
-func (q *Writer) WriteExpr(expr string, args ...interface{}) {
+func (q *sqlWriter) WriteExpr(expr string, args ...interface{}) {
 	var i, iarg int
 	for {
 		s := expr[i:]
@@ -51,7 +51,7 @@ func (q *Writer) WriteExpr(expr string, args ...interface{}) {
 
 		q.WriteSQL(strings.TrimSpace(s[:j]))
 		switch x := args[iarg].(type) {
-		case Literal:
+		case literal:
 			q.WriteSQL(x.String())
 		default:
 			q.WriteArg(x)

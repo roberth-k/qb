@@ -1,11 +1,7 @@
 package qb
 
-import (
-	"github.com/tetratom/qb/internal"
-)
-
 type Predicate struct {
-	w     internal.Writer
+	w     sqlWriter
 	count int
 }
 

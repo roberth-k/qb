@@ -2,8 +2,6 @@ package qb
 
 import (
 	"fmt"
-
-	"github.com/tetratom/qb/internal"
 )
 
 type Dialect int
@@ -16,7 +14,7 @@ const (
 )
 
 func Lit(s string, args ...interface{}) interface{} {
-	return internal.Literal(fmt.Sprintf(s, args...))
+	return literal(fmt.Sprintf(s, args...))
 }
 
 func WithDialectPQ() Query {

@@ -5,8 +5,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/tetratom/qb/internal"
 )
 
 type expressionType int
@@ -34,7 +32,7 @@ const (
 )
 
 type Query struct {
-	w    internal.Writer
+	w    sqlWriter
 	last expressionType
 	str  string
 	Dialect
@@ -215,7 +213,7 @@ func (q Query) ValueTuples(tuples ...[]interface{}) Query {
 			}
 
 			switch x := v.(type) {
-			case internal.Literal:
+			case literal:
 				q.w.WriteSQL(x.String())
 			default:
 				q.w.WriteArg(x)
