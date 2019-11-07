@@ -242,11 +242,15 @@ func (q Query) Where(pred Predicate) Query {
 	return q
 }
 
-func (q Query) Returning(first string, rest ...string) Query {
+func (q Query) Returning(columns ...string) Query {
 	q.last = returningExpr
-	q.w.WriteSQL("RETURNING", first)
-	for _, column := range rest {
-		q.w.WriteSQL(",", column)
+	q.w.WriteSQL("RETURNING")
+	for i, column := range columns {
+		if i > 0 {
+			q.w.WriteSQL(",")
+		}
+
+		q.w.WriteSQL(column)
 	}
 	return q
 }
