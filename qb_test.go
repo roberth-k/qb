@@ -303,6 +303,18 @@ func TestQuery(t *testing.T) {
 								And(`c = ?`, 4))))
 			},
 		},
+		{
+			name: "subquery with value tuples",
+			expr: `INSERT INTO t1 ( a , b ) VALUES ( ? , ( SELECT id FROM t2 WHERE n = ? ) ) , ( ? , ( SELECT id FROM t2 WHERE n = ? ) )`,
+			args: []interface{}{1, 2, 3, 4},
+			query: func() qb.Query {
+				return qb.
+					InsertInto(`t1`, `a`, `b`).
+					ValueTuples(
+						[]interface{}{1, qb.Select(`id`).From(`t2`).Where(qb.And(`n = ?`, 2))},
+						[]interface{}{3, qb.Select(`id`).From(`t2`).Where(qb.And(`n = ?`, 4))})
+			},
+		},
 	}
 
 	for _, test := range tests {

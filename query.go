@@ -215,6 +215,10 @@ func (q Query) ValueTuples(tuples ...[]interface{}) Query {
 			switch x := v.(type) {
 			case literal:
 				q.w.WriteSQL(x.String())
+			case Query:
+				q.w.WriteSQL("(")
+				q.w.Append(&x.w)
+				q.w.WriteSQL(")")
 			default:
 				q.w.WriteArg(x)
 			}
@@ -332,7 +336,7 @@ func (q Query) Offset(offset int64) Query {
 
 func (q Query) joinOn(joinType string, table string, predicate Predicate) Query {
 	q.last = joinExpr
-	q.w.WriteSQL(joinType+" "+table+" ON")
+	q.w.WriteSQL(joinType + " " + table + " ON")
 	q.w.Append(&predicate.w)
 	return q
 }
