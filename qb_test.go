@@ -78,6 +78,16 @@ func TestQuery(t *testing.T) {
 			},
 		},
 		{
+			name: "simple insert with arguments and tuples",
+			expr: `INSERT INTO my_table ( a ) VALUES ( ? ) , ( ? )`,
+			args: []interface{}{1, 2},
+			query: func() qb.Query {
+				return qb.
+					InsertInto("my_table", "a").
+					ValueTuples([]interface{}{1}, []interface{}{2})
+			},
+		},
+		{
 			name: "with statement",
 			expr: `WITH stmt1 AS ( INSERT INTO my_table ( a , b , c ) VALUES ( ? , ? , ? ) ) SELECT a AS "foo.bar" FROM my_table WHERE a = ?`,
 			args: []interface{}{1, 2, 3, 1},

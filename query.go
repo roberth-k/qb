@@ -198,13 +198,15 @@ func (q Query) Values(values ...interface{}) Query {
 	return q.ValueTuples(values)
 }
 
-func (q Query) ValueTuples(first []interface{}, rest ...[]interface{}) Query {
+func (q Query) ValueTuples(tuples ...[]interface{}) Query {
 	q.last = valuesExpr
 	q.w.WriteSQL("VALUES")
 
-	all := append([][]interface{}{first}, rest...)
+	for i, tuple := range tuples {
+		if i > 0 {
+			q.w.WriteSQL(",")
+		}
 
-	for _, tuple := range all {
 		q.w.WriteSQL("(")
 
 		for i, v := range tuple {
