@@ -32,3 +32,5 @@ func WithDialectGoracle() Query {
 func WithDialectMssql() Query {
 	return DialectOption(DialectMssql)
 }
+
+var NULL = Lit(`NULL`)
