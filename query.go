@@ -443,3 +443,21 @@ func (q Query) ForShare() Query {
 	q.w.WriteSQL("FOR SHARE")
 	return q
 }
+
+func Begin() Query {
+	return Query{}.Begin()
+}
+
+func (q Query) Begin() Query {
+	q.w.WriteSQL("BEGIN")
+	return q
+}
+
+func Commit() Query {
+	return Query{}.Commit()
+}
+
+func (q Query) Commit() Query {
+	q.w.WriteSQL("COMMIT")
+	return q
+}
