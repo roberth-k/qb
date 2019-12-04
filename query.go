@@ -230,6 +230,23 @@ func (q Query) ValueTuples(tuples ...[]interface{}) Query {
 	return q
 }
 
+func InsertValuesInto(table string, values Values) Query {
+	return Query{}.InsertValuesInto(table, values)
+}
+
+func (q Query) InsertValuesInto(table string, values Values) Query {
+	columns := make([]string, len(values))
+	arguments := make([]interface{}, len(values))
+	i := 0
+	for k, v := range values {
+		columns[i] = k
+		arguments[i] = v
+		i++
+	}
+
+	return q.InsertInto(table, columns...).Values(arguments...)
+}
+
 func (q Query) Where(pred Predicate) Query {
 	if q.last != whereExpr {
 		q.w.WriteSQL("WHERE")
@@ -293,6 +310,13 @@ func (q Query) Set(expr string, args ...interface{}) Query {
 	q.last = setExpr
 	q.w.WriteSQL(prefix)
 	q.w.WriteExpr(expr, args...)
+	return q
+}
+
+func (q Query) SetValues(values Values) Query {
+	for k, v := range values {
+		q = q.Set(k+` = ?`, v)
+	}
 	return q
 }
 

@@ -315,6 +315,17 @@ func TestQuery(t *testing.T) {
 						[]interface{}{3, qb.Select(`id`).From(`t2`).Where(qb.And(`n = ?`, 4))})
 			},
 		},
+		//{
+		//	name: "simple insert with values",
+		//	expr: `INSERT INTO my_table ( a , b ) VALUES ( ? , ? )`,
+		//	args: []interface{}{1, 2},
+		//	query: func() qb.Query {
+		//		return qb.InsertValuesInto("my_table", qb.Values{
+		//			"a": 1,
+		//			"b": 2,
+		//		})
+		//	},
+		//},
 	}
 
 	for _, test := range tests {
