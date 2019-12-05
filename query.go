@@ -197,8 +197,12 @@ func (q Query) Values(values ...interface{}) Query {
 }
 
 func (q Query) ValueTuples(tuples ...[]interface{}) Query {
-	q.last = valuesExpr
-	q.w.WriteSQL("VALUES")
+	if q.last != valuesExpr {
+		q.last = valuesExpr
+		q.w.WriteSQL("VALUES")
+	} else {
+		q.w.WriteSQL(",")
+	}
 
 	for i, tuple := range tuples {
 		if i > 0 {
