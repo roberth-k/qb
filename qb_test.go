@@ -315,6 +315,22 @@ func TestQuery(t *testing.T) {
 						[]interface{}{3, qb.Select(`id`).From(`t2`).Where(qb.And(`n = ?`, 4))})
 			},
 		},
+		{
+			name: "from subquery",
+			expr: `SELECT a , b FROM ( SELECT c FROM t2 WHERE x = ? ) WHERE y = ?`,
+			args: []interface{}{1, 2},
+			query: func() qb.Query {
+				return qb.
+					Select(`a`, `b`).
+					FromSubquery(qb.
+						Select(`c`).
+						From(`t2`).
+						Where(qb.
+							And(`x = ?`, 1))).
+					Where(qb.
+						And(`y = ?`, 2))
+			},
+		},
 		//{
 		//	name: "simple insert with values",
 		//	expr: `INSERT INTO my_table ( a , b ) VALUES ( ? , ? )`,

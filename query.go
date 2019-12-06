@@ -157,6 +157,14 @@ func (q Query) From(expr string) Query {
 	return q
 }
 
+func (q Query) FromSubquery(qry Query) Query {
+	q.last = fromExpr
+	q.w.WriteSQL("FROM", "(")
+	q.w.Append(&qry.w)
+	q.w.WriteSQL(")")
+	return q
+}
+
 func InsertInto(expr string, columns ...string) Query {
 	return Query{}.InsertInto(expr, columns...)
 }
