@@ -36,3 +36,7 @@ func WithDialectMssql() Query {
 var NULL = Lit(`NULL`)
 
 type Values map[string]interface{}
+
+func As(lhs, alias string) string {
+	return lhs + ` AS "` + alias + `"`
+}

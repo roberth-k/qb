@@ -311,6 +311,10 @@ func (q Query) Append(expr string, args ...interface{}) Query {
 	return q.appending(q.last, expr, args...)
 }
 
+func Append(expr string, args ...interface{}) Query {
+	return Query{}.Append(expr, args...)
+}
+
 func Update(table string) Query {
 	return Query{}.Update(table)
 }
