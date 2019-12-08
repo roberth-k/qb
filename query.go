@@ -159,6 +159,7 @@ func (q Query) From(expr string) Query {
 
 func (q Query) FromSubquery(sq Query) Query {
 	q.last = fromExpr
+	q.w.WriteSQL("FROM")
 	return q.Subquery(sq)
 }
 
