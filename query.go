@@ -268,6 +268,10 @@ func (q Query) InsertValuesInto(table string, values Values) Query {
 }
 
 func (q Query) Where(pred Predicate) Query {
+	if pred.IsEmpty() {
+		return q
+	}
+
 	if q.last != whereExpr {
 		q.w.WriteSQL("WHERE")
 	} else {
@@ -507,5 +511,10 @@ func Commit() Query {
 
 func (q Query) Commit() Query {
 	q.w.WriteSQL("COMMIT")
+	return q
+}
+
+func (q Query) As(alias string) Query {
+	q.w.WriteSQL("AS", `"`+alias+`"`)
 	return q
 }

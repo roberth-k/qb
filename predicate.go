@@ -9,6 +9,10 @@ func (p Predicate) String() string {
 	return p.w.String()
 }
 
+func (p Predicate) IsEmpty() bool {
+	return p.count == 0
+}
+
 func Pred(expr string, args ...interface{}) Predicate {
 	return Predicate{}.And(expr, args...)
 }
@@ -32,6 +36,10 @@ func AndP(predicate Predicate) Predicate {
 }
 
 func (my Predicate) AndP(predicate Predicate) Predicate {
+	if predicate.IsEmpty() {
+		return my
+	}
+
 	if my.count > 0 {
 		my.w.WriteSQL("AND")
 	}
@@ -54,6 +62,10 @@ func (my Predicate) Or(expr string, args ...interface{}) Predicate {
 }
 
 func (my Predicate) OrP(predicate Predicate) Predicate {
+	if predicate.IsEmpty() {
+		return my
+	}
+
 	if my.count > 0 {
 		my.w.WriteSQL("OR")
 	}
