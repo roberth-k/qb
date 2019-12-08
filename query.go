@@ -157,12 +157,20 @@ func (q Query) From(expr string) Query {
 	return q
 }
 
-func (q Query) FromSubquery(qry Query) Query {
+func (q Query) FromSubquery(sq Query) Query {
 	q.last = fromExpr
-	q.w.WriteSQL("FROM", "(")
-	q.w.Append(&qry.w)
+	return q.Subquery(sq)
+}
+
+func (q Query) Subquery(sq Query) Query {
+	q.w.WriteSQL("(")
+	q.w.Append(&sq.w)
 	q.w.WriteSQL(")")
 	return q
+}
+
+func Subquery(sq Query) Query {
+	return Query{}.Subquery(sq)
 }
 
 func InsertInto(expr string, columns ...string) Query {
