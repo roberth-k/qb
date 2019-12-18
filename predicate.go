@@ -76,3 +76,7 @@ func (my Predicate) OrP(predicate Predicate) Predicate {
 	my.w.WriteSQL(")")
 	return my
 }
+
+func (my Predicate) Map(f func(p Predicate) Predicate) Predicate {
+	return f(my)
+}

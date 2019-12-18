@@ -31,3 +31,28 @@ func ExampleQuery_Having() {
 	fmt.Print(q.String())
 	// Output: SELECT * FROM t1 GROUP BY a, b HAVING a < ?
 }
+
+func ExampleQuery_FunctionalMap() {
+	var id int64
+	joined := true
+
+	q := qb.
+		Select("*").
+		From("t1").
+		Map(func(q qb.Query) qb.Query {
+			if joined {
+				return q.NaturalJoin("t2")
+			}
+			return q
+		}).
+		Where(qb.Predicate{}.
+			And(`created_at < now()`).
+			Map(func(p qb.Predicate) qb.Predicate {
+				if id > 0 {
+					return p.And(`id = ?`, id)
+				}
+				return p
+			}))
+	fmt.Print(q.String())
+	// Output: SELECT * FROM t1 NATURAL JOIN t2 WHERE created_at < now()
+}

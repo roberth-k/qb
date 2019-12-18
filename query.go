@@ -519,3 +519,7 @@ func (q Query) As(alias string) Query {
 	q.w.WriteSQL("AS", `"`+alias+`"`)
 	return q
 }
+
+func (q Query) Map(f func(q Query) Query) Query {
+	return f(q)
+}
