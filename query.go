@@ -415,50 +415,98 @@ func (q Query) JoinOn(table string, predicate Predicate) Query {
 	return q.joinOn("JOIN", table, predicate)
 }
 
+func (q Query) JoinAsOn(table, alias string, predicate Predicate) Query {
+	return q.joinOn("JOIN", As(table, alias), predicate)
+}
+
 func (q Query) JoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("JOIN", table, columns...)
+}
+
+func (q Query) JoinAsUsing(table, alias string, columns ...string) Query {
+	return q.joinUsing("JOIN", As(table, alias), columns...)
 }
 
 func (q Query) LeftJoinOn(table string, predicate Predicate) Query {
 	return q.joinOn("LEFT JOIN", table, predicate)
 }
 
+func (q Query) LeftJoinAsOn(table, alias string, predicate Predicate) Query {
+	return q.joinOn("LEFT JOIN", As(table, alias), predicate)
+}
+
 func (q Query) LeftJoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("LEFT JOIN", table, columns...)
+}
+
+func (q Query) LeftJoinAsUsing(table, alias string, columns ...string) Query {
+	return q.joinUsing("LEFT JOIN", As(table, alias), columns...)
 }
 
 func (q Query) RightJoinOn(table string, predicate Predicate) Query {
 	return q.joinOn("RIGHT JOIN", table, predicate)
 }
 
+func (q Query) RightJoinAsOn(table, alias string, predicate Predicate) Query {
+	return q.joinOn("RIGHT JOIN", As(table, alias), predicate)
+}
+
 func (q Query) RightJoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("RIGHT JOIN", table, columns...)
+}
+
+func (q Query) RightJoinAsUsing(table, alias string, columns ...string) Query {
+	return q.joinUsing("RIGHT JOIN", As(table, alias), columns...)
 }
 
 func (q Query) FullJoinOn(table string, predicate Predicate) Query {
 	return q.joinOn("FULL JOIN", table, predicate)
 }
 
+func (q Query) FullJoinAsOn(table, alias string, predicate Predicate) Query {
+	return q.joinOn("FULL JOIN", As(table, alias), predicate)
+}
+
 func (q Query) FullJoinUsing(table string, columns ...string) Query {
 	return q.joinUsing("FULL JOIN", table, columns...)
+}
+
+func (q Query) FullJoinAsUsing(table, alias string, columns ...string) Query {
+	return q.joinUsing("FULL JOIN", As(table, alias), columns...)
 }
 
 func (q Query) NaturalJoin(table string) Query {
 	return q.appending(joinExpr, "NATURAL JOIN "+table)
 }
 
+func (q Query) NaturalJoinAs(table, alias string) Query {
+	return q.appending(joinExpr, "NATURAL JOIN "+As(table, alias))
+}
+
 func (q Query) NaturalLeftJoin(table string) Query {
 	return q.appending(joinExpr, "NATURAL LEFT JOIN "+table)
+}
+
+func (q Query) NaturalLeftJoinAs(table, alias string) Query {
+	return q.appending(joinExpr, "NATURAL LEFT JOIN "+As(table, alias))
 }
 
 func (q Query) NaturalRightJoin(table string) Query {
 	return q.appending(joinExpr, "NATURAL RIGHT JOIN "+table)
 }
 
+func (q Query) NaturalRightJoinAs(table, alias string) Query {
+	return q.appending(joinExpr, "NATURAL RIGHT JOIN "+As(table, alias))
+}
+
 // Appends a NATURAL FULL JOIN clause.
 //  ... NATURAL FULL JOIN table
 func (q Query) NaturalFullJoin(table string) Query {
 	return q.appending(joinExpr, "NATURAL FULL JOIN "+table)
+}
+
+func (q Query) NaturalFullJoinAs(table, alias string) Query {
+	return q.appending(joinExpr, "NATURAL FULL JOIN "+As(table, alias))
 }
 
 // Creates a query with multiple statements.
