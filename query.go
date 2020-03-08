@@ -29,6 +29,7 @@ const (
 	joinExpr
 	groupByExpr
 	havingExpr
+	usingExpr
 )
 
 type Query struct {
@@ -570,4 +571,14 @@ func (q Query) As(alias string) Query {
 
 func (q Query) Map(f func(q Query) Query) Query {
 	return f(q)
+}
+
+func (q Query) Using(table string) Query {
+	q.last = usingExpr
+	q.w.WriteSQL("USING", table)
+	return q
+}
+
+func (q Query) UsingAs(table, alias string) Query {
+	return q.Using(As(table, alias))
 }
