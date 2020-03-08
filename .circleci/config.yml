@@ -10,6 +10,7 @@ workflows:
       - go111
       - go112
       - go113
+      - go114
 
 jobs:
   go111:
@@ -45,6 +46,23 @@ jobs:
   go113:
     docker:
       - image: circleci/golang:1.13
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+      - run: go mod download
+      - save_cache:
+          key: '{{ .Environment.CIRCLE_JOB }}-{{ checksum "go.sum" }}'
+          paths:
+            - "/go/pkg/mod"
+      - run: go test ./... -coverprofile=/tmp/coverprofile -covermode=atomic
+      - codecov/upload:
+          file: /tmp/coverprofile
+
+  go114:
+    docker:
+      - image: circleci/golang:1.14
     steps:
       - checkout
       - restore_cache:
