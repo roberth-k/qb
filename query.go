@@ -158,6 +158,10 @@ func (q Query) From(expr string) Query {
 	return q
 }
 
+func (q Query) FromAs(table, alias string) Query {
+	return q.From(As(table, alias))
+}
+
 func (q Query) FromSubquery(sq Query) Query {
 	q.last = fromExpr
 	q.w.WriteSQL("FROM")
@@ -204,10 +208,18 @@ func DeleteFrom(table string) Query {
 	return Query{}.DeleteFrom(table)
 }
 
+func DeleteFromAs(table, alias string) Query {
+	return DeleteFrom(As(table, alias))
+}
+
 func (q Query) DeleteFrom(table string) Query {
 	q.last = deleteFromExpr
 	q.w.WriteSQL("DELETE FROM", table)
 	return q
+}
+
+func (q Query) DeleteFromAs(table, alias string) Query {
+	return q.DeleteFrom(As(table, alias))
 }
 
 func (q Query) Values(values ...interface{}) Query {
