@@ -22,17 +22,31 @@ func (q *sqlWriter) String() string {
 }
 
 func (q *sqlWriter) Append(w *sqlWriter) {
-	q.sql = append(q.sql, w.sql...)
-	q.args = append(q.args, w.args...)
+	sql1 := make([]string, 0, len(q.sql)+len(w.sql))
+	sql1 = append(sql1, q.sql...)
+	sql1 = append(sql1, w.sql...)
+
+	args1 := make([]interface{}, 0, len(q.args)+len(w.args))
+	args1 = append(args1, q.args...)
+	args1 = append(args1, w.args...)
+
+	q.sql, q.args = sql1, args1
 }
 
 func (q *sqlWriter) WriteSQL(s ...string) {
-	q.sql = append(q.sql, s...)
+	sql1 := make([]string, 0, len(q.sql)+len(s))
+	sql1 = append(sql1, q.sql...)
+	sql1 = append(sql1, s...)
+	q.sql = sql1
 }
 
 func (q *sqlWriter) WriteArg(v interface{}) {
 	q.WriteSQL("?")
-	q.args = append(q.args, v)
+
+	args1 := make([]interface{}, 0, len(q.args)+1)
+	args1 = append(args1, q.args...)
+	args1 = append(args1, v)
+	q.args = args1
 }
 
 func (q *sqlWriter) WriteExpr(expr string, args ...interface{}) {
